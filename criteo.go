@@ -180,7 +180,7 @@ func (c *CriteoClient) ScheduleExecuteDownloadJob(r *ReportJob, timeout time.Dur
 	i := 0
 	for status := c.GetJobStatus(j); status != "Completed" && i < retry; time.Sleep(timeout * time.Second) {
 		if printLog {
-			log.Println(status)
+			log.Printf("Waiting for job %v (%v)", j.JobID, status)
 		}
 		i++
 	}
