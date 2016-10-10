@@ -1,5 +1,10 @@
 package critego
 
+import (
+	"log"
+	"time"
+)
+
 type Account struct {
 	AdvertiserName string `xml:"advertiserName" json:"advertiserName"`
 	Email          string `xml:"email" json:"email"`
@@ -167,5 +172,28 @@ func (c *CriteoClient) GetReport(url string) []*ReportRow {
 	for i := 0; i < len(rows); i++ {
 		rows[i].Account = c.Account
 	}
+	return rows
+}
+
+func (c *CriteoClient) ScheduleExecuteDownloadJob(r *ReportJob, timeout time.Duration, retry int, printLog bool) []*ReportRow {
+	j := c.ScheduleReportJob(r)
+	i := 0
+	for status := c.GetJobStatus(j); status != "Completed" && i < retry; time.Sleep(timeout * time.Second) {
+		if printLog {
+			log.Println(status)
+		}
+		i++
+	}
+	if i >= retry {
+		if printLog {
+			log.Println("Retry")
+		}
+		return c.ScheduleExecuteDownloadJob(r, timeout, retry, printLog)
+	}
+	url := c.GetReportDownloadUrl(j)
+	if printLog {
+		log.Println(url)
+	}
+	rows := c.GetReport(url)
 	return rows
 }

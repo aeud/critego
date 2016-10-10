@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	startDate string = "2016-07-01"
-	endDate   string = "2016-07-01"
+	startDate string = "2016-03-01"
+	endDate   string = "2016-04-30"
 )
 
 var now time.Time
@@ -92,6 +92,18 @@ func TestGetReport(t *testing.T) {
 	url := client.GetReportDownloadUrl(j)
 	fmt.Println(url)
 	rows := client.GetReport(url)
+	fmt.Printf("Report has %v rows\n\n", len(rows))
+	for i := 0; i < len(rows); i++ {
+		row := rows[i]
+		fmt.Println(string(row.Jsonify()))
+	}
+}
+
+func TestGetReport(t *testing.T) {
+	client := getClient()
+	client.Login()
+	r := NewReportJob("Category", "Daily", startDate, endDate)
+	rows := client.ScheduleExecuteDownloadJob(r, 5, 1, true)
 	fmt.Printf("Report has %v rows\n\n", len(rows))
 	for i := 0; i < len(rows); i++ {
 		row := rows[i]
