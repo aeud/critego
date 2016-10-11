@@ -18,7 +18,8 @@ func HttpRequest(body []byte) []byte {
 	client := &http.Client{Transport: tr}
 	resp, err := client.Post(Endpoint, ContentType, bytes.NewBuffer(body))
 	if err != nil {
-		log.Fatalf("Error when posting: %v", err)
+		log.Printf("Error when posting: %v", err)
+		return HttpRequest(body)
 	}
 	defer resp.Body.Close()
 	bs, err := ioutil.ReadAll(resp.Body)
